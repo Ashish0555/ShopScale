@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: shopscale
+          POSTGRES_PASSWORD: shopscale
+          POSTGRES_DB: shopscale
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U shopscale -d shopscale"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://shopscale:shopscale@localhost:5432/shopscale?schema=public
+      REDIS_URL: redis://localhost:6379
+      KAFKA_BROKERS: localhost:9092
+      JWT_ACCESS_SECRET: ci-access-secret-that-is-long-enough
+      JWT_REFRESH_SECRET: ci-refresh-secret-that-is-long-enough
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:4000
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Generate Prisma client
+        run: npm run db:generate -w apps/backend
+
+      - name: Deploy migrations
+        run: npm run db:deploy -w apps/backend
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Build backend image
+        run: docker build -f apps/backend/Dockerfile --target production -t shopscale-backend:ci .
+
+      - name: Build frontend image
+        run: docker build -f apps/frontend/Dockerfile --target production -t shopscale-frontend:ci .
