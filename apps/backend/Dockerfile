@@ -3,11 +3,12 @@ FROM node:20-alpine AS deps
 WORKDIR /app
 
 COPY package.json ./
+COPY package-lock.json ./
 COPY apps/backend/package.json ./apps/backend/package.json
 COPY apps/frontend/package.json ./apps/frontend/package.json
 COPY apps/backend/prisma ./apps/backend/prisma
 
-RUN npm install
+RUN npm ci
 RUN npm run db:generate -w apps/backend
 
 FROM deps AS development

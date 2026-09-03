@@ -3,10 +3,11 @@ FROM node:20-alpine AS deps
 WORKDIR /app
 
 COPY package.json ./
+COPY package-lock.json ./
 COPY apps/backend/package.json ./apps/backend/package.json
 COPY apps/frontend/package.json ./apps/frontend/package.json
 
-RUN npm install
+RUN npm ci
 
 FROM deps AS development
 
