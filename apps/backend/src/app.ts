@@ -1,7 +1,7 @@
 import compression from "compression";
 import cors from "cors";
 import express from "express";
-import * as helmetModule from "helmet";
+import helmet from "helmet";
 import { pinoHttp } from "pino-http";
 import { env } from "./common/config/env.js";
 import { errorHandler, notFoundHandler } from "./common/middleware/error-handler.js";
@@ -135,7 +135,7 @@ export function createApp(dependencies: AppDependencies = {}): express.Express {
       })
     })
   );
-  app.use(helmetModule.default());
+  app.use(helmet());
   app.use(compression());
   app.use(
     cors({
