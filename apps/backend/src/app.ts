@@ -1,7 +1,7 @@
 import compression from "compression";
 import cors from "cors";
 import express from "express";
-import helmet from "helmet";
+import { default as helmet } from "helmet";
 import { pinoHttp } from "pino-http";
 import { env } from "./common/config/env.js";
 import { errorHandler, notFoundHandler } from "./common/middleware/error-handler.js";
