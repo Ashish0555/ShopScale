@@ -16,10 +16,12 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
-    "prettier": "^3.3.3"
+    "prettier": "3.3.3"
   },
   "overrides": {
-    "qs": "^6.16.0"
+    "qs": "^6.16.0",
+    "prisma": "5.22.0",
+    "@prisma/client": "5.22.0"
   },
   "engines": {
     "node": ">=20.11.0"
