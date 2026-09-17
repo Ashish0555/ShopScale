@@ -24,6 +24,6 @@
     "@prisma/client": "5.22.0"
   },
   "engines": {
-    "node": ">=20.11.0"
+    "node": "20.x"
   }
 }
