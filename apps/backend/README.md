@@ -1,6 +1,6 @@
 # ShopScale Python backend
 
-This is the FastAPI/SQLAlchemy migration of the existing ShopScale backend. The original TypeScript backend remains in `apps/backend` until the Python implementation has completed production verification.
+This is the FastAPI/SQLAlchemy backend for ShopScale.
 
 ## Run locally
 
@@ -33,16 +33,14 @@ docker compose up --build
 
 | TypeScript | Python |
 | --- | --- |
-| `apps/backend/src/app.ts` and `server.ts` | `app/main.py` |
-| `common/config/env.ts` | `app/core/config.py` |
-| `common/middleware/*` | `app/core/errors.py`, dependencies, and middleware |
-| `modules/auth/*` | `app/core/security.py`, `app/api/routes/http.py`, `app/services.py` |
-| `modules/products/*` | `app/api/routes/http.py`, `app/services.py`, `app/schemas.py` |
-| `modules/cart/*` | `app/api/routes/http.py`, `app/services.py` |
-| `modules/orders/*` | `app/api/routes/http.py`, `app/services.py`, `OrderState` |
-| `modules/payments/*` | `app/api/routes/http.py`, `app/services.py` |
-| `modules/admin/*`, `audit/*` | `app/api/routes/http.py`, SQLAlchemy models |
-| `prisma/schema.prisma` | `app/models.py` and Alembic |
+| Backend entrypoint and middleware | `app/main.py`, `app/core/` |
+| Auth and authorization | `app/core/security.py`, `app/api/routes/http.py` |
+| Products and categories | `app/api/routes/http.py`, `app/services.py`, `app/schemas.py` |
+| Cart | `app/api/routes/http.py`, `app/services.py` |
+| Orders and inventory | `app/api/routes/http.py`, `app/services.py`, `app/order_state.py` |
+| Payments and idempotency | `app/api/routes/http.py`, `app/services.py` |
+| Admin and audit | `app/api/routes/http.py`, `app/models.py` |
+| Database schema | `app/models.py` and Alembic |
 | Kafka outbox | `app/messaging/outbox.py`, `app/messaging/kafka.py` |
 | Socket.IO realtime | `app/websocket/socketio.py` |
 | Jest/Supertest | `tests/` with Pytest and FastAPI TestClient |

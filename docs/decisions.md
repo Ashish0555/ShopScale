@@ -1,16 +1,16 @@
 # Decisions
 
-## Express For The Backend
+## FastAPI For The Backend
 
-Express keeps the scaffold small and readable while still allowing production-style boundaries through routers, services, middleware, and infrastructure adapters.
+FastAPI keeps the HTTP layer small and readable while providing typed request validation, dependency injection, and production-style infrastructure boundaries.
 
 ## Modular Monolith First
 
 ShopScale starts as a modular monolith because the hardest early problems are transactional: inventory, orders, payments, idempotency, and outbox consistency. Splitting services too early would add distributed failure modes before the core rules are proven.
 
-## Prisma And PostgreSQL
+## SQLAlchemy And PostgreSQL
 
-Prisma gives typed database access and migrations. PostgreSQL is used for relational consistency, transactions, constraints, and concurrency controls.
+SQLAlchemy provides typed database access and Alembic provides migrations. PostgreSQL is used for relational consistency, transactions, constraints, and concurrency controls.
 
 ## Redis
 
@@ -40,7 +40,7 @@ Reasoning: this keeps the portfolio API stateless for normal requests while stil
 
 Problem: stored passwords must remain resistant to offline attacks if the database is exposed.
 
-Decision: passwords are hashed with Node.js `scrypt` using a per-password random salt. Plaintext passwords are accepted only in auth requests and are never logged or returned.
+Decision: passwords are hashed with Python's standard-library `scrypt` using a per-password random salt while retaining the existing stored hash format. Plaintext passwords are accepted only in auth requests and are never logged or returned.
 
 Alternatives: bcrypt or Argon2 are strong choices, but would add a native/runtime dependency at this phase.
 
@@ -52,7 +52,7 @@ Reasoning: using a built-in memory-hard KDF is secure enough for this portfolio 
 
 Problem: refresh tokens need replay protection and logout invalidation.
 
-Decision: `/api/auth/refresh` creates a replacement refresh token and revokes the old token in one Prisma transaction. A conditional update ensures only one concurrent rotation can succeed.
+Decision: `/api/auth/refresh` creates a replacement refresh token and revokes the old token in one SQLAlchemy transaction. A row lock ensures only one concurrent rotation can succeed.
 
 Alternatives: reusable refresh tokens are simpler but weaker after theft; storing raw refresh tokens would simplify lookup but increases blast radius.
 

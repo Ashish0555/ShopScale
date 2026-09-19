@@ -4,9 +4,9 @@ PostgreSQL is the system of record because ShopScale needs transactions, row-lev
 
 ## Implemented
 
-- Prisma configured for PostgreSQL
-- Initial migration creates `app_metadata`
-- `/ready` uses Prisma to execute `SELECT 1`
+- SQLAlchemy configured for PostgreSQL
+- Alembic migration creates the application schema
+- `/ready` uses SQLAlchemy to execute `SELECT 1`
 - `users` table with unique email, hashed password, active flag, and `CUSTOMER`/`ADMIN` role
 - `refresh_tokens` table storing hashed opaque refresh tokens with expiry, revocation, and replacement tracking
 - `categories` table with unique slug, active flag, timestamps, and indexes

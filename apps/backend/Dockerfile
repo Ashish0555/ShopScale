@@ -1,42 +1,15 @@
-FROM node:24-alpine AS deps
+FROM python:3.12-slim AS base
 
 WORKDIR /app
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PYTHONPATH=/app
 
-COPY package.json ./
-COPY package-lock.json ./
-COPY apps/backend/package.json ./apps/backend/package.json
-COPY apps/frontend/package.json ./apps/frontend/package.json
-COPY apps/backend/prisma ./apps/backend/prisma
+COPY apps/backend/requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+COPY apps/backend ./apps/backend
+WORKDIR /app/apps/backend
 
-RUN npm ci
-RUN npm run db:generate -w apps/backend
+FROM base AS development
+CMD ["uvicorn", "app.main:asgi_app", "--host", "0.0.0.0", "--port", "4000", "--reload"]
 
-FROM deps AS development
-
-WORKDIR /app
-COPY . .
-
-EXPOSE 4000
-
-CMD ["npm", "run", "dev", "-w", "apps/backend"]
-
-FROM deps AS build
-
-WORKDIR /app
-COPY . .
-RUN npm run build -w apps/backend
-
-FROM node:24-alpine AS production
-
-WORKDIR /app
-ENV NODE_ENV=production
-
-COPY package.json ./
-COPY apps/backend/package.json ./apps/backend/package.json
-COPY apps/backend/prisma ./apps/backend/prisma
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=build /app/apps/backend/dist ./apps/backend/dist
-
-EXPOSE 4000
-
-CMD ["npm", "run", "start", "-w", "apps/backend"]
+FROM base AS production
+CMD ["uvicorn", "app.main:asgi_app", "--host", "0.0.0.0", "--port", "4000"]

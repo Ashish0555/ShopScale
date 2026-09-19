@@ -8,15 +8,15 @@ Run the full local stack with:
 docker compose up --build
 ```
 
-Run migrations with:
+Run Alembic migrations with:
 
 ```bash
-npm run db:migrate -w apps/backend
+cd apps/backend && python -m alembic upgrade head
 ```
 
 ## CI/CD
 
-`.github/workflows/ci.yml` installs dependencies, generates the Prisma client, runs migrations against a CI PostgreSQL service, lints, typechecks, tests, builds, and builds Docker images.
+`.github/workflows/ci.yml` installs Python dependencies, runs Alembic migrations and Pytest against CI PostgreSQL/Redis/Kafka services, typechecks the frontend, and builds Docker images.
 
 `.github/workflows/aws-deploy.yml` is a manual deployment placeholder using AWS OIDC role assumption. It does not store credentials in the repository.
 

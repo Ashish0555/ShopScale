@@ -78,7 +78,7 @@ The application follows a modular-monolith architecture with PostgreSQL as the s
 flowchart TB
     Client[Next.js Client]
     LB[Load Balancer / Reverse Proxy]
-    API[Express + TypeScript API]
+    API[FastAPI + Python API]
 
     subgraph Modules[Application Modules]
         Auth[Auth / RBAC]
@@ -120,24 +120,17 @@ Microservices would add service discovery, network failure, distributed transact
 Instead, ShopScale keeps strong module boundaries inside one deployable application:
 
 ```text
-apps/backend/src/
-├── modules/
-│   ├── auth/
-│   ├── users/
-│   ├── products/
-│   ├── cart/
-│   ├── orders/
-│   ├── inventory/
-│   ├── payments/
-│   ├── admin/
-│   └── ...
-├── infrastructure/
-│   ├── database/
-│   ├── redis/
-│   ├── kafka/
-│   ├── websocket/
-│   └── logging/
-└── common/
+apps/backend/
+├── app/
+│   ├── api/
+│   ├── core/
+│   ├── db/
+│   ├── messaging/
+│   ├── models.py
+│   ├── services.py
+│   └── websocket/
+├── alembic/
+└── tests/
 ```
 
 This gives the project a clean path from:
@@ -156,19 +149,19 @@ Extract only the necessary module/service
 
 | Layer | Technology | Purpose |
 |---|---|---|
-| Backend | Node.js + Express 5 | HTTP API and application runtime |
-| Language | TypeScript | Type safety and maintainability |
+| Backend | Python + FastAPI | HTTP API and application runtime |
+| Language | Python 3.12+ | Type hints and maintainability |
 | Frontend | Next.js + React | Web application |
 | Styling | Tailwind CSS | UI styling |
 | Database | PostgreSQL | Source of truth and transactional consistency |
-| ORM | Prisma | Type-safe database access and migrations |
+| ORM | SQLAlchemy 2.0 + Alembic | Database access and migrations |
 | Cache | Redis | Caching and distributed rate limiting |
-| Messaging | KafkaJS + Kafka | Asynchronous domain events |
+| Messaging | aiokafka + Kafka | Asynchronous domain events |
 | Reliability | Transactional Outbox | Reliable DB-to-event handoff |
 | Realtime | Socket.IO | Live order status updates |
 | Authentication | JWT + refresh tokens | Identity and session lifecycle |
 | Password security | scrypt | Password hashing |
-| Testing | Jest + Supertest | Unit and HTTP/integration testing |
+| Testing | Pytest + HTTPX | Unit and HTTP/integration testing |
 | Containers | Docker Compose | Reproducible local environment |
 | CI/CD | GitHub Actions | Automated validation and builds |
 | Load testing | k6 | Performance testing |
@@ -225,7 +218,7 @@ Extract only the necessary module/service
 ```mermaid
 sequenceDiagram
     participant C as Client
-    participant API as Express API
+    participant API as FastAPI
     participant DB as PostgreSQL
     participant O as Outbox
     participant K as Kafka
@@ -462,7 +455,7 @@ Cache
 Rate limiting
 ```
 
-rather than storing state only inside one Node.js process.
+rather than storing state only inside one Python process.
 
 ## Distributed Rate Limiting
 
@@ -988,12 +981,12 @@ The repository intentionally does **not** contain fabricated benchmark numbers.
 
 ## Requirements
 
-- Node.js 20.11+
-- npm
+- Python 3.12+
+- pip
 - Docker Desktop
 - k6 for load testing
 
-The project has been validated with Node.js 24.13.
+The Python backend is validated with Python 3.12.
 
 ## Setup
 
@@ -1008,10 +1001,10 @@ Start the complete local stack:
 docker compose up --build
 ```
 
-Apply Prisma migrations when required:
+Apply Alembic migrations when required:
 
 ```bash
-npm run db:migrate -w apps/backend
+cd apps/backend && python -m alembic upgrade head
 ```
 
 ## Local endpoints
@@ -1043,23 +1036,19 @@ localhost:9092
 Run the same core checks used by CI:
 
 ```bash
-npm run db:generate -w apps/backend
-npx prisma validate --schema apps/backend/prisma/schema.prisma
-npm run lint
-npm run typecheck
-npm test
-npm run build
+cd apps/backend
+python -m alembic upgrade head
+PYTHONPATH=. python -m pytest -q tests
+cd ../..
+npm run typecheck --workspace @shopscale/frontend
+npm run build --workspace @shopscale/frontend
 ```
 
-The current implementation has been verified under Node 24 with:
+The current implementation has been verified with:
 
 ```text
-Prisma generation      ✅
-Prisma validation      ✅
-Lint                   ✅
-Typecheck              ✅
-Automated tests        ✅ 37/37
-Backend build          ✅
+Python backend tests   ✅
+Frontend typecheck     ✅
 Frontend build         ✅
 ```
 
@@ -1079,7 +1068,7 @@ The GitHub Actions workflow is designed to validate changes automatically.
 flowchart LR
     Push[Push / Pull Request]
     Install[Install dependencies]
-    Generate[Generate Prisma]
+    Migrate[Run Alembic migrations]
     Lint[Lint]
     Typecheck[Typecheck]
     Test[Test]
@@ -1134,12 +1123,9 @@ The deployment guidance is designed so that production credentials are supplied 
 ShopScale/
 ├── apps/
 │   ├── backend/
-│   │   ├── prisma/
-│   │   ├── src/
-│   │   │   ├── common/
-│   │   │   ├── infrastructure/
-│   │   │   └── modules/
-│   │   └── test/
+│   │   ├── app/
+│   │   ├── alembic/
+│   │   └── tests/
 │   │
 │   └── frontend/
 │       └── src/

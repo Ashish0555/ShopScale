@@ -4,7 +4,6 @@
   "private": true,
   "description": "Scalable e-commerce and order management system built as a modular monolith.",
   "workspaces": [
-    "apps/backend",
     "apps/frontend"
   ],
   "scripts": {
@@ -17,11 +16,6 @@
   },
   "devDependencies": {
     "prettier": "3.3.3"
-  },
-  "overrides": {
-    "qs": "^6.16.0",
-    "prisma": "5.22.0",
-    "@prisma/client": "5.22.0"
   },
   "engines": {
     "node": "24.x"

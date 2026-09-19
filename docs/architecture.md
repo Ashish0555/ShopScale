@@ -4,10 +4,10 @@ ShopScale starts as a modular monolith. The goal is to keep transactions and bus
 
 ```mermaid
 flowchart LR
-  Client[Next.js frontend] --> API[Express REST API]
+  Client[Next.js frontend] --> API[FastAPI REST API]
   API --> Modules[Domain modules]
-  Modules --> Prisma[Prisma client]
-  Prisma --> Postgres[(PostgreSQL)]
+  Modules --> SQLAlchemy[SQLAlchemy]
+  SQLAlchemy --> Postgres[(PostgreSQL)]
   API --> Redis[(Redis)]
   Modules --> Outbox[(Outbox events)]
   Outbox --> Kafka[(Kafka)]
@@ -17,13 +17,13 @@ flowchart LR
 ## Implemented
 
 - Monorepo with `apps/backend` and `apps/frontend`
-- Backend module folders for auth, users, products, cart, orders, inventory, payments, notifications, admin, audit, and health
-- Infrastructure folders for database, Redis, Kafka, WebSockets, and logging
-- Express app factory with middleware, liveness, readiness, and centralized error handling
-- Prisma-backed PostgreSQL readiness check
+- Backend modules and services for auth, users, products, cart, orders, inventory, payments, admin, audit, and health
+- Infrastructure adapters for database, Redis, Kafka, WebSockets, and logging
+- FastAPI application with middleware, liveness, readiness, and centralized error handling
+- SQLAlchemy-backed PostgreSQL readiness check
 - Next.js shell with core routes
 - Docker Compose environment with PostgreSQL, Redis, Kafka, Zookeeper, backend, and frontend
-- Auth and user modules with thin HTTP routes, service-owned business rules, Prisma repository persistence, JWT access tokens, refresh token rotation, and RBAC middleware
+- Auth and user routes with service-owned business rules, SQLAlchemy persistence, JWT access tokens, refresh token rotation, and RBAC dependencies
 
 ## Planned Module Flow
 

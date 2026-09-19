@@ -68,7 +68,7 @@ services:
   backend:
     build:
       context: .
-      dockerfile: apps/backend-python/Dockerfile
+      dockerfile: apps/backend/Dockerfile
       target: development
     depends_on:
       postgres:
@@ -83,7 +83,7 @@ services:
       API_PREFIX: /api
       CORS_ORIGIN: http://localhost:3000
       LOG_LEVEL: info
-      DATABASE_URL: postgresql://shopscale:shopscale@postgres:5432/shopscale?schema=public
+      DATABASE_URL: postgresql://shopscale:shopscale@postgres:5432/shopscale
       REDIS_URL: redis://redis:6379
       KAFKA_BROKERS: kafka:29092
       JWT_ACCESS_SECRET: local-access-secret-change-before-production
@@ -92,7 +92,7 @@ services:
       - "4000:4000"
     volumes:
       - .:/app
-      - backend-python-cache:/root/.cache/pip
+      - backend-cache:/root/.cache/pip
     command: ["sh", "-c", "python -m alembic upgrade head && python -m uvicorn app.main:asgi_app --host 0.0.0.0 --port 4000 --reload"]
 
   frontend:
@@ -120,4 +120,4 @@ volumes:
   backend-workspace-node-modules:
   frontend-node-modules:
   frontend-workspace-node-modules:
-  backend-python-cache:
+  backend-cache:
