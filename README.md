@@ -1,6 +1,6 @@
 # ShopScale
 
-> **A production-minded e-commerce and order-management platform built as a TypeScript modular monolith.**
+>**A production-minded e-commerce and order-management platform built as a Python modular monolith.**
 
 ShopScale is designed to demonstrate the engineering problems that appear in real backend systems: authentication and authorization, transactional data consistency, concurrent inventory updates, retry-safe payments, caching, rate limiting, asynchronous event processing, real-time updates, testing, observability, CI/CD, and cloud deployment.
 
