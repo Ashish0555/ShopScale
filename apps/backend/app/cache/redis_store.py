@@ -29,7 +29,7 @@ class RedisCache:
         except redis.RedisError:
             pass
 
-    def increment_window(self, key: str, window: int) -> int:
+    async def incr_window(self, key: str, window: int) -> int:
         count = self.client.incr(key)
         if count == 1:
             self.client.expire(key, window)

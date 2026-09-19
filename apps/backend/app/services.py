@@ -18,7 +18,7 @@ from app.models import (
     User, UserRole,
 )
 from app.order_state import can_transition
-from app.schemas import CategoryCreate, CategoryUpdate, ProductCreate, ProductUpdate
+from app.schemas import CategoryCreate, CategoryUpdate, PaymentResponse, ProductCreate, ProductUpdate
 
 
 def _slug(value: str) -> str:
@@ -342,7 +342,7 @@ def create_payment(db: Session, user_id: uuid.UUID, key: str, method: str, path:
     payment = Payment(user_id=user_id, order_id=order.id, amount_cents=order.total_cents, currency=order.currency, state=PaymentState.FAILED if failed else PaymentState.SUCCESS, provider_ref=f"sim_{uuid.uuid4()}", failure_reason="Simulated payment failure" if failed else None)
     db.add(payment)
     db.flush()
-    response = {"payment": payment_payload(payment)}
+    response = {"payment": PaymentResponse.model_validate(payment).model_dump(by_alias=True, mode="json")}
     status = 402 if failed else 201
     payment_payload_data = {"paymentId": str(payment.id), "orderId": str(order.id), "userId": str(user_id), "amountCents": payment.amount_cents}
     if failed:

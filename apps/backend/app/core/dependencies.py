@@ -21,9 +21,9 @@ def admin_user(user: Annotated[User, Depends(current_user)]) -> User:
 
 
 def rate_limit(prefix: str, limit: int):
-    def dependency(request: Request) -> None:
+    async def dependency(request: Request) -> None:
         identity = request.client.host if request.client else "unknown"
-        count = cache.increment_window(f"rate:{prefix}:{identity}", settings.rate_limit_window_seconds)
+        count = await cache.incr_window(f"rate:{prefix}:{identity}", settings.rate_limit_window_seconds)
         if count > limit:
             raise ApiError(429, "Too many requests")
 

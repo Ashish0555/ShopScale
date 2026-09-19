@@ -1,3 +1,4 @@
+import asyncio
 import os
 
 import pytest
@@ -13,6 +14,6 @@ def test_redis_cache_round_trip_and_counter():
     key = "shopscale:test:cache"
     cache.set_json(key, {"value": 1}, 30)
     assert cache.get_json(key) == {"value": 1}
-    assert cache.increment_window("shopscale:test:rate", 30) == 1
+    assert asyncio.run(cache.incr_window("shopscale:test:rate", 30)) == 1
     cache.delete(key)
     assert cache.get_json(key) is None
