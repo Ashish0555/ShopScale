@@ -68,7 +68,7 @@ services:
   backend:
     build:
       context: .
-      dockerfile: apps/backend/Dockerfile
+      dockerfile: apps/backend-python/Dockerfile
       target: development
     depends_on:
       postgres:
@@ -92,9 +92,8 @@ services:
       - "4000:4000"
     volumes:
       - .:/app
-      - backend-node-modules:/app/node_modules
-      - backend-workspace-node-modules:/app/apps/backend/node_modules
-    command: ["npm", "run", "dev", "-w", "apps/backend"]
+      - backend-python-cache:/root/.cache/pip
+    command: ["sh", "-c", "python -m alembic upgrade head && python -m uvicorn app.main:asgi_app --host 0.0.0.0 --port 4000 --reload"]
 
   frontend:
     build:
@@ -121,3 +120,4 @@ volumes:
   backend-workspace-node-modules:
   frontend-node-modules:
   frontend-workspace-node-modules:
+  backend-python-cache:
